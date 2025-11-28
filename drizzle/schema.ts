@@ -40,6 +40,8 @@ export const playlists = mysqlTable("playlists", {
   likes: int("likes").default(0).notNull(),
   allowDislikes: int("allowDislikes").default(0).notNull(), // 0 = false, 1 = true (boolean in MySQL)
   dislikes: int("dislikes").default(0).notNull(),
+  genre: varchar("genre", { length: 100 }),
+  mood: varchar("mood", { length: 100 }),
 });
 
 export const songs = mysqlTable("songs", {

@@ -281,3 +281,128 @@ export async function getPlaylistByShareToken(shareToken: string) {
   
   return result[0];
 }
+
+export async function getTrendingPlaylists(limit: number = 50) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db
+    .select({
+      id: playlists.id,
+      name: playlists.name,
+      service: playlists.service,
+      createdAt: playlists.createdAt,
+      views: playlists.views,
+      likes: playlists.likes,
+      shareToken: playlists.shareToken,
+      userId: playlists.userId,
+      userName: users.name,
+      genre: playlists.genre,
+      mood: playlists.mood,
+    })
+    .from(playlists)
+    .leftJoin(users, eq(playlists.userId, users.id))
+    .where(eq(playlists.visibility, "public"))
+    .orderBy(playlists.views, playlists.likes)
+    .limit(limit);
+  
+  return result;
+}
+
+export async function getFilteredPlaylists(filters: {
+  genre?: string;
+  mood?: string;
+  search?: string;
+  limit?: number;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  let query = db
+    .select({
+      id: playlists.id,
+      name: playlists.name,
+      service: playlists.service,
+      createdAt: playlists.createdAt,
+      views: playlists.views,
+      likes: playlists.likes,
+      shareToken: playlists.shareToken,
+      userId: playlists.userId,
+      userName: users.name,
+      genre: playlists.genre,
+      mood: playlists.mood,
+    })
+    .from(playlists)
+    .leftJoin(users, eq(playlists.userId, users.id))
+    .where(eq(playlists.visibility, "public"));
+  
+  // Note: Drizzle doesn't support dynamic where clauses easily
+  // For now, return all public playlists and filter in memory
+  const result = await query.orderBy(playlists.views).limit(filters.limit || 50);
+  
+  // Apply filters in memory
+  let filtered = result;
+  
+  if (filters.genre) {
+    filtered = filtered.filter(p => p.genre?.toLowerCase() === filters.genre?.toLowerCase());
+  }
+  
+  if (filters.mood) {
+    filtered = filtered.filter(p => p.mood?.toLowerCase() === filters.mood?.toLowerCase());
+  }
+  
+  if (filters.search) {
+    const searchLower = filters.search.toLowerCase();
+    filtered = filtered.filter(p => 
+      p.name.toLowerCase().includes(searchLower) ||
+      p.userName?.toLowerCase().includes(searchLower)
+    );
+  }
+  
+  return filtered;
+}
+
+export async function clonePlaylist(
+  sourcePlaylistId: number,
+  userId: number,
+  newName: string
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Get source playlist
+  const sourcePlaylist = await getPlaylistById(sourcePlaylistId);
+  if (!sourcePlaylist) {
+    throw new Error("Source playlist not found");
+  }
+  
+  // Create new playlist
+  const result = await db.insert(playlists).values({
+    userId,
+    name: newName,
+    service: sourcePlaylist.service,
+    genre: sourcePlaylist.genre,
+    mood: sourcePlaylist.mood,
+  });
+  
+  const newPlaylistId = Number(result[0].insertId);
+  
+  // Copy songs
+  const sourceSongs = await getPlaylistSongs(sourcePlaylistId);
+  if (sourceSongs.length > 0) {
+    await db.insert(songs).values(
+      sourceSongs.map(song => ({
+        playlistId: newPlaylistId,
+        title: song.title,
+        artist: song.artist,
+        externalId: song.externalId,
+        previewUrl: song.previewUrl,
+        albumArt: song.albumArt,
+        service: song.service,
+        isGenerated: 0,
+      }))
+    );
+  }
+  
+  return newPlaylistId;
+}

@@ -63,3 +63,19 @@
 - [x] Add UI toggle for enabling/disabling dislikes
 - [ ] Display dislike count only when enabled by creator
 - [ ] Add dislike button for public playlists (when enabled)
+
+## Discovery Gallery
+- [x] Add genre and mood fields to playlists table
+- [x] Create backend procedure to get trending playlists (sorted by views/likes)
+- [x] Create backend procedure to filter playlists by genre
+- [x] Create backend procedure to filter playlists by mood
+- [x] Create backend procedure to clone playlists
+- [x] Build Discovery page with playlist grid layout
+- [x] Add genre filter dropdown
+- [x] Add mood filter dropdown
+- [x] Add search functionality for playlist names
+- [x] Create public playlist view page (accessible via share token)
+- [x] Add clone button on public playlist view
+- [x] Display playlist stats (views, likes) on cards
+- [x] Add navigation link to Discovery page
+- [x] Write vitest tests for discovery and clone functionality

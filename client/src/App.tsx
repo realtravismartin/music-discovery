@@ -9,6 +9,8 @@ import CreatePlaylist from "./pages/CreatePlaylist";
 import ViewPlaylist from "./pages/ViewPlaylist";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
+import Discovery from "./pages/Discovery";
+import ShareView from "./pages/ShareView";
 
 function Router() {
   return (
@@ -18,6 +20,8 @@ function Router() {
       <Route path="/playlist/:id" component={ViewPlaylist} />
       <Route path="/terms" component={Terms} />
       <Route path="/privacy" component={Privacy} />
+      <Route path="/discover" component={Discovery} />
+      <Route path="/share/:token" component={ShareView} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

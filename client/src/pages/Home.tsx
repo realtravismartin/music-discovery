@@ -2,12 +2,12 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getLoginUrl } from "@/const";
-import { Music, Sparkles, ListMusic, Upload, ExternalLink } from "lucide-react";
+import { Music, Sparkles, ListMusic, Upload, ExternalLink, Plus } from "lucide-react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 
 export default function Home() {
-  const { user, isAuthenticated, loading } = useAuth();
+  const { user, isAuthenticated, loading, logout } = useAuth();
   const { data: playlists, isLoading: playlistsLoading } = trpc.music.getMyPlaylists.useQuery(undefined, {
     enabled: isAuthenticated,
   });
@@ -28,20 +28,27 @@ export default function Home() {
             <Music className="h-8 w-8 text-purple-400" />
             <h1 className="text-2xl font-bold text-white">Music Discovery</h1>
           </div>
-          <div>
+          <div className="flex items-center gap-4">
+            <Link href="/discover">
+              <Button variant="ghost" className="text-white hover:bg-white/10">
+                Discover
+              </Button>
+            </Link>
             {isAuthenticated ? (
-              <div className="flex items-center gap-4">
-                <span className="text-white/80">Welcome, {user?.name}</span>
+              <>
+                <Button onClick={logout} variant="ghost" className="text-white hover:bg-white/10">
+                  Log Out
+                </Button>
                 <Link href="/create">
-                  <Button variant="default" className="bg-purple-600 hover:bg-purple-700">
-                    <Sparkles className="mr-2 h-4 w-4" />
+                  <Button className="bg-purple-600 hover:bg-purple-700">
+                    <Plus className="mr-2 h-4 w-4" />
                     Create Playlist
                   </Button>
                 </Link>
-              </div>
+              </>
             ) : (
-              <Button asChild variant="default" className="bg-purple-600 hover:bg-purple-700">
-                <a href={getLoginUrl()}>Sign In</a>
+              <Button asChild className="bg-purple-600 hover:bg-purple-700">
+                <a href={getLoginUrl()}>Get Started</a>
               </Button>
             )}
           </div>

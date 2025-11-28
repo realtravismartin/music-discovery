@@ -226,6 +226,40 @@ export const appRouter = router({
         return await getPublicPlaylists(50);
       }),
     
+    getTrendingPlaylists: publicProcedure
+      .input(z.object({ limit: z.number().optional() }).optional())
+      .query(async ({ input }) => {
+        const { getTrendingPlaylists } = await import('./db');
+        return await getTrendingPlaylists(input?.limit || 50);
+      }),
+    
+    getFilteredPlaylists: publicProcedure
+      .input(z.object({
+        genre: z.string().optional(),
+        mood: z.string().optional(),
+        search: z.string().optional(),
+        limit: z.number().optional(),
+      }))
+      .query(async ({ input }) => {
+        const { getFilteredPlaylists } = await import('./db');
+        return await getFilteredPlaylists(input);
+      }),
+    
+    clonePlaylist: protectedProcedure
+      .input(z.object({
+        playlistId: z.number(),
+        newName: z.string(),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { clonePlaylist } = await import('./db');
+        const newPlaylistId = await clonePlaylist(
+          input.playlistId,
+          ctx.user.id,
+          input.newName
+        );
+        return { success: true, playlistId: newPlaylistId };
+      }),
+    
     getPlaylistByShareToken: publicProcedure
       .input(z.object({ shareToken: z.string() }))
       .query(async ({ input }) => {

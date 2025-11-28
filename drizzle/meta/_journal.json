@@ -43,6 +43,13 @@
       "when": 1764350990794,
       "tag": "0005_cultured_punisher",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "5",
+      "when": 1764351322793,
+      "tag": "0006_slow_exodus",
+      "breakpoints": true
     }
   ]
 }
