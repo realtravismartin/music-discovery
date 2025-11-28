@@ -25,4 +25,28 @@ export const users = mysqlTable("users", {
 export type User = typeof users.$inferSelect;
 export type InsertUser = typeof users.$inferInsert;
 
-// TODO: Add your tables here
+export const playlists = mysqlTable("playlists", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull(),
+  name: varchar("name", { length: 255 }).notNull(),
+  service: mysqlEnum("service", ["spotify", "itunes"]).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export const songs = mysqlTable("songs", {
+  id: int("id").autoincrement().primaryKey(),
+  playlistId: int("playlistId").notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  artist: varchar("artist", { length: 255 }).notNull(),
+  externalId: varchar("externalId", { length: 255 }),
+  previewUrl: text("previewUrl"),
+  albumArt: text("albumArt"),
+  service: mysqlEnum("service", ["spotify", "itunes"]).notNull(),
+  isGenerated: int("isGenerated").default(0).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type Playlist = typeof playlists.$inferSelect;
+export type InsertPlaylist = typeof playlists.$inferInsert;
+export type Song = typeof songs.$inferSelect;
+export type InsertSong = typeof songs.$inferInsert;

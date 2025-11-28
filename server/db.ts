@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { InsertUser, users, playlists, songs, InsertPlaylist, InsertSong } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +89,48 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+export async function createPlaylist(playlist: InsertPlaylist) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(playlists).values(playlist);
+  return Number(result[0].insertId);
+}
+
+export async function getUserPlaylists(userId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(playlists).where(eq(playlists.userId, userId));
+}
+
+export async function getPlaylistById(playlistId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(playlists).where(eq(playlists.id, playlistId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function addSongToPlaylist(song: InsertSong) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(songs).values(song);
+  return Number(result[0].insertId);
+}
+
+export async function getPlaylistSongs(playlistId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(songs).where(eq(songs.playlistId, playlistId));
+}
+
+export async function deletePlaylist(playlistId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.delete(songs).where(eq(songs.playlistId, playlistId));
+  await db.delete(playlists).where(eq(playlists.id, playlistId));
+}
