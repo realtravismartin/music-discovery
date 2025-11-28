@@ -183,6 +183,61 @@ export const appRouter = router({
       return { success: true };
     }),
     
+    togglePlaylistVisibility: protectedProcedure
+      .input(z.object({ 
+        playlistId: z.number(),
+        visibility: z.enum(["private", "public"])
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { updatePlaylistVisibility } = await import('./db');
+        const shareToken = await updatePlaylistVisibility(
+          input.playlistId,
+          ctx.user.id,
+          input.visibility
+        );
+        return { 
+          success: true, 
+          visibility: input.visibility,
+          shareToken: input.visibility === "public" ? shareToken : null
+        };
+      }),
+    
+    toggleAllowDislikes: protectedProcedure
+      .input(z.object({ 
+        playlistId: z.number(),
+        allowDislikes: z.boolean()
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const { updatePlaylistDislikeSetting } = await import('./db');
+        await updatePlaylistDislikeSetting(
+          input.playlistId,
+          ctx.user.id,
+          input.allowDislikes
+        );
+        return { 
+          success: true, 
+          allowDislikes: input.allowDislikes
+        };
+      }),
+    
+    getPublicPlaylists: publicProcedure
+      .query(async () => {
+        const { getPublicPlaylists } = await import('./db');
+        return await getPublicPlaylists(50);
+      }),
+    
+    getPlaylistByShareToken: publicProcedure
+      .input(z.object({ shareToken: z.string() }))
+      .query(async ({ input }) => {
+        const { getPlaylistByShareToken, getPlaylistSongs } = await import('./db');
+        const playlist = await getPlaylistByShareToken(input.shareToken);
+        if (!playlist) {
+          throw new Error('Playlist not found');
+        }
+        const songs = await getPlaylistSongs(playlist.id);
+        return { playlist, songs };
+      }),
+    
     exportToSpotify: protectedProcedure
       .input(z.object({ playlistId: z.number() }))
       .mutation(async ({ input, ctx }) => {

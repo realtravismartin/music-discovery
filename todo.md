@@ -34,3 +34,32 @@
 - [x] Show play counts for each song in playlist
 - [x] Add export history section to home page
 - [x] Write vitest tests for tracking functionality
+
+## Playlist Sharing and Social Features
+- [x] Add visibility field to playlists table (public/private)
+- [x] Add shareToken field for unique shareable links
+- [x] Add likes/views counter fields to playlists table
+- [x] Create backend procedure to toggle playlist visibility
+- [x] Create backend procedure to generate share links
+- [x] Create backend procedure to get public playlists for discovery
+- [ ] Create backend procedure to clone playlists
+- [x] Add share button with copy link functionality to playlist view
+- [ ] Create discovery page to browse public playlists
+- [ ] Add public playlist view page (accessible without login)
+- [ ] Display playlist creator name and stats on public view
+- [ ] Add clone/save button for public playlists
+- [x] Write vitest tests for sharing functionality
+
+## Legal Pages
+- [x] Create Terms of Service page
+- [x] Create Privacy Policy page
+- [x] Add footer with links to legal pages
+- [x] Include privacy statement about PII handling
+
+## Opt-in Dislike System
+- [x] Add allowDislikes field to playlists table (default false)
+- [x] Add dislikes counter field to playlists table
+- [x] Create backend procedure to toggle dislike setting
+- [x] Add UI toggle for enabling/disabling dislikes
+- [ ] Display dislike count only when enabled by creator
+- [ ] Add dislike button for public playlists (when enabled)

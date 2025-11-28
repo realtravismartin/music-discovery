@@ -34,6 +34,12 @@ export const playlists = mysqlTable("playlists", {
   exportedAt: timestamp("exportedAt"),
   spotifyPlaylistId: varchar("spotifyPlaylistId", { length: 255 }),
   spotifyPlaylistUrl: text("spotifyPlaylistUrl"),
+  visibility: mysqlEnum("visibility", ["private", "public"]).default("private").notNull(),
+  shareToken: varchar("shareToken", { length: 64 }),
+  views: int("views").default(0).notNull(),
+  likes: int("likes").default(0).notNull(),
+  allowDislikes: int("allowDislikes").default(0).notNull(), // 0 = false, 1 = true (boolean in MySQL)
+  dislikes: int("dislikes").default(0).notNull(),
 });
 
 export const songs = mysqlTable("songs", {

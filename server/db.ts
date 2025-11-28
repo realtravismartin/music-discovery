@@ -175,3 +175,109 @@ export async function updatePlaylistExport(
     .set(exportData)
     .where(eq(playlists.id, playlistId));
 }
+
+export async function updatePlaylistVisibility(
+  playlistId: number,
+  userId: number,
+  visibility: "private" | "public"
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Verify ownership
+  const playlist = await getPlaylistById(playlistId);
+  if (!playlist || playlist.userId !== userId) {
+    throw new Error("Playlist not found or unauthorized");
+  }
+  
+  // Generate share token if making public and doesn't exist
+  const updates: any = { visibility };
+  if (visibility === "public" && !playlist.shareToken) {
+    const { nanoid } = await import('nanoid');
+    updates.shareToken = nanoid(32);
+  }
+  
+  await db
+    .update(playlists)
+    .set(updates)
+    .where(eq(playlists.id, playlistId));
+  
+  return updates.shareToken || playlist.shareToken;
+}
+
+export async function updatePlaylistDislikeSetting(
+  playlistId: number,
+  userId: number,
+  allowDislikes: boolean
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Verify ownership
+  const playlist = await getPlaylistById(playlistId);
+  if (!playlist || playlist.userId !== userId) {
+    throw new Error("Playlist not found or unauthorized");
+  }
+  
+  await db
+    .update(playlists)
+    .set({ allowDislikes: allowDislikes ? 1 : 0 })
+    .where(eq(playlists.id, playlistId));
+}
+
+export async function getPublicPlaylists(limit: number = 50) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db
+    .select({
+      id: playlists.id,
+      name: playlists.name,
+      service: playlists.service,
+      createdAt: playlists.createdAt,
+      views: playlists.views,
+      likes: playlists.likes,
+      shareToken: playlists.shareToken,
+      userId: playlists.userId,
+      userName: users.name,
+    })
+    .from(playlists)
+    .leftJoin(users, eq(playlists.userId, users.id))
+    .where(eq(playlists.visibility, "public"))
+    .orderBy(playlists.createdAt)
+    .limit(limit);
+  
+  return result;
+}
+
+export async function getPlaylistByShareToken(shareToken: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db
+    .select({
+      id: playlists.id,
+      name: playlists.name,
+      service: playlists.service,
+      createdAt: playlists.createdAt,
+      views: playlists.views,
+      likes: playlists.likes,
+      userId: playlists.userId,
+      userName: users.name,
+      visibility: playlists.visibility,
+    })
+    .from(playlists)
+    .leftJoin(users, eq(playlists.userId, users.id))
+    .where(eq(playlists.shareToken, shareToken))
+    .limit(1);
+  
+  if (result.length === 0) return undefined;
+  
+  // Increment view count
+  await db
+    .update(playlists)
+    .set({ views: result[0].views + 1 })
+    .where(eq(playlists.shareToken, shareToken));
+  
+  return result[0];
+}

@@ -177,6 +177,29 @@ export default function Home() {
           </>
         )}
       </main>
+
+      <footer className="border-t border-white/10 bg-black/20 backdrop-blur-sm mt-16">
+        <div className="container mx-auto px-4 py-8">
+          <div className="flex flex-col md:flex-row justify-between items-center gap-4">
+            <div className="flex items-center gap-2 text-white/70">
+              <Music className="h-5 w-5" />
+              <span>© {new Date().getFullYear()} Music Discovery. All rights reserved.</span>
+            </div>
+            <div className="flex gap-6">
+              <Link href="/terms">
+                <button className="text-white/70 hover:text-white transition-colors">
+                  Terms of Service
+                </button>
+              </Link>
+              <Link href="/privacy">
+                <button className="text-white/70 hover:text-white transition-colors">
+                  Privacy Policy
+                </button>
+              </Link>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -29,6 +29,20 @@
       "when": 1764350446514,
       "tag": "0003_blue_riptide",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1764350741351,
+      "tag": "0004_kind_guardian",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "5",
+      "when": 1764350990794,
+      "tag": "0005_cultured_punisher",
+      "breakpoints": true
     }
   ]
 }

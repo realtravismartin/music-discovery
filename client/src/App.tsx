@@ -7,13 +7,17 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import CreatePlaylist from "./pages/CreatePlaylist";
 import ViewPlaylist from "./pages/ViewPlaylist";
+import Terms from "./pages/Terms";
+import Privacy from "./pages/Privacy";
 
 function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
-      <Route path={"/create"} component={CreatePlaylist} />
-      <Route path={"/playlist/:id"} component={ViewPlaylist} />
+      <Route path="/create" component={CreatePlaylist} />
+      <Route path="/playlist/:id" component={ViewPlaylist} />
+      <Route path="/terms" component={Terms} />
+      <Route path="/privacy" component={Privacy} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>

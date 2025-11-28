@@ -1,8 +1,10 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
 import { getLoginUrl } from "@/const";
-import { Music, Loader2, Play, ExternalLink, Trash2, Upload } from "lucide-react";
+import { Music, Loader2, Play, ExternalLink, Trash2, Upload, Lock, Globe, Share2, Check } from "lucide-react";
 import { Link, useLocation, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
@@ -13,10 +15,11 @@ export default function ViewPlaylist() {
   const { id } = useParams();
   const [, setLocation] = useLocation();
   const [playingUrl, setPlayingUrl] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   const playlistId = parseInt(id || "0");
 
-  const { data: playlist, isLoading: playlistLoading } = trpc.music.getMyPlaylists.useQuery(undefined, {
+  const { data: playlist, isLoading: playlistLoading, refetch: refetchPlaylists } = trpc.music.getMyPlaylists.useQuery(undefined, {
     enabled: isAuthenticated,
   });
 
@@ -42,6 +45,50 @@ export default function ViewPlaylist() {
       toast.error(`Failed to delete playlist: ${error.message}`);
     },
   });
+
+  const toggleVisibilityMutation = trpc.music.togglePlaylistVisibility.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Playlist is now ${data.visibility}`);
+      refetchPlaylists();
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to update visibility');
+    },
+  });
+
+  const handleVisibilityToggle = (checked: boolean) => {
+    toggleVisibilityMutation.mutate({
+      playlistId,
+      visibility: checked ? "public" : "private",
+    });
+  };
+
+  const handleCopyShareLink = () => {
+    if (currentPlaylist?.shareToken) {
+      const shareUrl = `${window.location.origin}/share/${currentPlaylist.shareToken}`;
+      navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      toast.success('Share link copied to clipboard!');
+      setTimeout(() => setCopied(false), 2000);
+    }
+  };
+
+  const toggleDislikesMutation = trpc.music.toggleAllowDislikes.useMutation({
+    onSuccess: (data) => {
+      toast.success(data.allowDislikes ? 'Dislikes enabled' : 'Dislikes disabled');
+      refetchPlaylists();
+    },
+    onError: (error) => {
+      toast.error(error.message || 'Failed to update dislike setting');
+    },
+  });
+
+  const handleDislikesToggle = (checked: boolean) => {
+    toggleDislikesMutation.mutate({
+      playlistId,
+      allowDislikes: checked,
+    });
+  };
 
   const exportMutation = trpc.music.exportToSpotify.useMutation({
     onSuccess: (data) => {
@@ -185,16 +232,95 @@ export default function ViewPlaylist() {
 
       <main className="container mx-auto px-4 py-8 max-w-4xl">
         <div className="mb-8">
-          <h2 className="text-4xl font-bold text-white mb-2">{currentPlaylist.name}</h2>
-          <p className="text-white/80">
-            {currentPlaylist.service === "spotify" ? "Spotify" : "iTunes"} • {songs.length} songs • Created {new Date(currentPlaylist.createdAt).toLocaleDateString()}
-          </p>
-          {currentPlaylist.exportedAt && (
-            <p className="text-green-400 mt-2 flex items-center gap-2">
-              <Upload className="h-4 w-4" />
-              Exported to Spotify on {new Date(currentPlaylist.exportedAt).toLocaleDateString()}
-            </p>
-          )}
+          <div className="flex items-start justify-between mb-4">
+            <div>
+              <h2 className="text-4xl font-bold text-white mb-2">{currentPlaylist.name}</h2>
+              <p className="text-white/80">
+                {currentPlaylist.service === "spotify" ? "Spotify" : "iTunes"} • {songs.length} songs • Created {new Date(currentPlaylist.createdAt).toLocaleDateString()}
+              </p>
+              {currentPlaylist.exportedAt && (
+                <p className="text-green-400 mt-2 flex items-center gap-2">
+                  <Upload className="h-4 w-4" />
+                  Exported to Spotify on {new Date(currentPlaylist.exportedAt).toLocaleDateString()}
+                </p>
+              )}
+            </div>
+          </div>
+
+          <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white mb-6">
+            <CardContent className="pt-6 space-y-4">
+              {/* Privacy Toggle */}
+              <div className="flex items-center justify-between pb-4 border-b border-white/10">
+                <div className="flex items-center gap-3">
+                  {currentPlaylist.visibility === "public" ? (
+                    <Globe className="h-5 w-5 text-green-400" />
+                  ) : (
+                    <Lock className="h-5 w-5 text-white/70" />
+                  )}
+                  <div>
+                    <Label htmlFor="visibility-toggle" className="text-base font-medium cursor-pointer">
+                      {currentPlaylist.visibility === "public" ? "Public Playlist" : "Private Playlist"}
+                    </Label>
+                    <p className="text-sm text-white/60">
+                      {currentPlaylist.visibility === "public" 
+                        ? "Anyone with the link can view this playlist"
+                        : "Only you can see this playlist"}
+                    </p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  {currentPlaylist.visibility === "public" && currentPlaylist.shareToken && (
+                    <Button
+                      onClick={handleCopyShareLink}
+                      variant="outline"
+                      size="sm"
+                      className="bg-white/10 border-white/20 hover:bg-white/20"
+                    >
+                      {copied ? (
+                        <>
+                          <Check className="h-4 w-4 mr-2" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Share2 className="h-4 w-4 mr-2" />
+                          Share Link
+                        </>
+                      )}
+                    </Button>
+                  )}
+                  <Switch
+                    id="visibility-toggle"
+                    checked={currentPlaylist.visibility === "public"}
+                    onCheckedChange={handleVisibilityToggle}
+                    disabled={toggleVisibilityMutation.isPending}
+                  />
+                </div>
+              </div>
+
+              {/* Dislike Toggle (only shown for public playlists) */}
+              {currentPlaylist.visibility === "public" && (
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div>
+                      <Label htmlFor="dislikes-toggle" className="text-base font-medium cursor-pointer">
+                        Allow Dislikes
+                      </Label>
+                      <p className="text-sm text-white/60">
+                        Let viewers dislike your playlist (opt-in)
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    id="dislikes-toggle"
+                    checked={currentPlaylist.allowDislikes === 1}
+                    onCheckedChange={handleDislikesToggle}
+                    disabled={toggleDislikesMutation.isPending}
+                  />
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
 
         <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
