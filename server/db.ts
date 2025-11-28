@@ -162,3 +162,16 @@ export async function deleteSpotifyToken(userId: number) {
   
   await db.delete(spotifyTokens).where(eq(spotifyTokens.userId, userId));
 }
+
+export async function updatePlaylistExport(
+  playlistId: number,
+  exportData: { exportedAt: Date; spotifyPlaylistId: string; spotifyPlaylistUrl: string }
+) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db
+    .update(playlists)
+    .set(exportData)
+    .where(eq(playlists.id, playlistId));
+}

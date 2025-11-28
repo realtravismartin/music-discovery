@@ -153,3 +153,33 @@ export async function getSpotifyUserProfile(accessToken: string) {
     email: response.data.email,
   };
 }
+
+export async function getTracksPopularity(accessToken: string, trackIds: string[]) {
+  if (trackIds.length === 0) return [];
+  
+  // Spotify API allows max 50 tracks per request
+  const chunks = [];
+  for (let i = 0; i < trackIds.length; i += 50) {
+    chunks.push(trackIds.slice(i, i + 50));
+  }
+  
+  const results = [];
+  for (const chunk of chunks) {
+    const response = await axios.get(
+      `https://api.spotify.com/v1/tracks?ids=${chunk.join(',')}`,
+      {
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+        },
+      }
+    );
+    
+    results.push(...response.data.tracks.map((track: any) => ({
+      id: track.id,
+      popularity: track.popularity, // 0-100 scale
+      name: track.name,
+    })));
+  }
+  
+  return results;
+}

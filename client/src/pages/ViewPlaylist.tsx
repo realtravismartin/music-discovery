@@ -20,7 +20,7 @@ export default function ViewPlaylist() {
     enabled: isAuthenticated,
   });
 
-  const { data: songs, isLoading: songsLoading } = trpc.music.getPlaylistSongs.useQuery(
+  const { data: songs, isLoading: songsLoading } = trpc.music.getPlaylistSongsWithPopularity.useQuery(
     { playlistId },
     { enabled: isAuthenticated && playlistId > 0 }
   );
@@ -189,6 +189,12 @@ export default function ViewPlaylist() {
           <p className="text-white/80">
             {currentPlaylist.service === "spotify" ? "Spotify" : "iTunes"} • {songs.length} songs • Created {new Date(currentPlaylist.createdAt).toLocaleDateString()}
           </p>
+          {currentPlaylist.exportedAt && (
+            <p className="text-green-400 mt-2 flex items-center gap-2">
+              <Upload className="h-4 w-4" />
+              Exported to Spotify on {new Date(currentPlaylist.exportedAt).toLocaleDateString()}
+            </p>
+          )}
         </div>
 
         <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
@@ -215,7 +221,14 @@ export default function ViewPlaylist() {
                   )}
                   <div className="flex-1 min-w-0">
                     <div className="font-medium truncate">{song.title}</div>
-                    <div className="text-sm text-white/70 truncate">{song.artist}</div>
+                    <div className="text-sm text-white/70 truncate flex items-center gap-2">
+                      <span>{song.artist}</span>
+                      {currentPlaylist?.service === 'spotify' && song.popularity > 0 && (
+                        <span className="text-xs bg-purple-500/30 px-2 py-0.5 rounded-full">
+                          {song.popularity}% popular
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="flex gap-2">
                     {song.previewUrl && (

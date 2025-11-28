@@ -22,6 +22,13 @@
       "when": 1764349283772,
       "tag": "0002_tricky_gladiator",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1764350446514,
+      "tag": "0003_blue_riptide",
+      "breakpoints": true
     }
   ]
 }

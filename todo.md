@@ -24,3 +24,13 @@
 - [x] Handle OAuth callback and token storage
 - [x] Test OAuth flow end-to-end
 - [x] Write vitest tests for export functionality
+
+## Export Tracking and Play Counts
+- [x] Update database schema to track playlist exports
+- [x] Add exportedAt timestamp and spotifyPlaylistId to playlists table
+- [x] Fetch play counts from Spotify API for tracks
+- [x] Create backend procedure to get export history
+- [x] Display export status and timestamp in playlist view
+- [x] Show play counts for each song in playlist
+- [x] Add export history section to home page
+- [x] Write vitest tests for tracking functionality

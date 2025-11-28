@@ -31,6 +31,9 @@ export const playlists = mysqlTable("playlists", {
   name: varchar("name", { length: 255 }).notNull(),
   service: mysqlEnum("service", ["spotify", "itunes"]).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
+  exportedAt: timestamp("exportedAt"),
+  spotifyPlaylistId: varchar("spotifyPlaylistId", { length: 255 }),
+  spotifyPlaylistUrl: text("spotifyPlaylistUrl"),
 });
 
 export const songs = mysqlTable("songs", {

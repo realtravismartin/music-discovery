@@ -2,7 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getLoginUrl } from "@/const";
-import { Music, Sparkles, ListMusic } from "lucide-react";
+import { Music, Sparkles, ListMusic, Upload, ExternalLink } from "lucide-react";
 import { Link } from "wouter";
 import { trpc } from "@/lib/trpc";
 
@@ -99,26 +99,82 @@ export default function Home() {
         </div>
 
         {isAuthenticated && playlists && playlists.length > 0 && (
-          <div className="mt-16">
-            <h3 className="text-3xl font-bold text-white mb-8">Your Playlists</h3>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {playlists.map((playlist) => (
-                <Link key={playlist.id} href={`/playlist/${playlist.id}`}>
-                  <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 transition-colors cursor-pointer">
-                    <CardHeader>
-                      <CardTitle className="flex items-center gap-2">
-                        <ListMusic className="h-5 w-5 text-purple-400" />
-                        {playlist.name}
-                      </CardTitle>
-                      <CardDescription className="text-white/70">
-                        {playlist.service === 'spotify' ? 'Spotify' : 'iTunes'} • {new Date(playlist.createdAt).toLocaleDateString()}
-                      </CardDescription>
-                    </CardHeader>
-                  </Card>
-                </Link>
-              ))}
+          <>
+            <div className="mt-16">
+              <h3 className="text-3xl font-bold text-white mb-8">Your Playlists</h3>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                {playlists.map((playlist) => (
+                  <Link key={playlist.id} href={`/playlist/${playlist.id}`}>
+                    <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white hover:bg-white/20 transition-colors cursor-pointer">
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <ListMusic className="h-5 w-5 text-purple-400" />
+                          {playlist.name}
+                          {playlist.exportedAt && (
+                            <span className="ml-auto text-xs bg-green-600/30 px-2 py-1 rounded-full flex items-center gap-1">
+                              <Upload className="h-3 w-3" />
+                              Exported
+                            </span>
+                          )}
+                        </CardTitle>
+                        <CardDescription className="text-white/70">
+                          {playlist.service === 'spotify' ? 'Spotify' : 'iTunes'} • {new Date(playlist.createdAt).toLocaleDateString()}
+                        </CardDescription>
+                      </CardHeader>
+                    </Card>
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
+            
+            {playlists.some(p => p.exportedAt) && (
+              <div className="mt-16">
+                <h3 className="text-3xl font-bold text-white mb-8">Export History</h3>
+                <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white">
+                  <CardContent className="pt-6">
+                    <div className="space-y-4">
+                      {playlists
+                        .filter(p => p.exportedAt)
+                        .sort((a, b) => new Date(b.exportedAt!).getTime() - new Date(a.exportedAt!).getTime())
+                        .map((playlist) => (
+                          <div key={playlist.id} className="flex items-center justify-between p-4 bg-white/5 rounded-lg">
+                            <div className="flex items-center gap-4">
+                              <Upload className="h-5 w-5 text-green-400" />
+                              <div>
+                                <div className="font-medium">{playlist.name}</div>
+                                <div className="text-sm text-white/70">
+                                  Exported on {new Date(playlist.exportedAt!).toLocaleDateString()} at {new Date(playlist.exportedAt!).toLocaleTimeString()}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="flex gap-2">
+                              {playlist.spotifyPlaylistUrl && (
+                                <Button
+                                  asChild
+                                  size="sm"
+                                  variant="ghost"
+                                  className="hover:bg-white/10"
+                                >
+                                  <a href={playlist.spotifyPlaylistUrl} target="_blank" rel="noopener noreferrer">
+                                    <ExternalLink className="h-4 w-4 mr-2" />
+                                    Open in Spotify
+                                  </a>
+                                </Button>
+                              )}
+                              <Link href={`/playlist/${playlist.id}`}>
+                                <Button size="sm" variant="ghost" className="hover:bg-white/10">
+                                  View Details
+                                </Button>
+                              </Link>
+                            </div>
+                          </div>
+                        ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>
