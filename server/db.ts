@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, playlists, songs, InsertPlaylist, InsertSong } from "../drizzle/schema";
+import { InsertUser, users, playlists, songs, InsertPlaylist, InsertSong, spotifyTokens, InsertSpotifyToken } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -133,4 +133,32 @@ export async function deletePlaylist(playlistId: number) {
   
   await db.delete(songs).where(eq(songs.playlistId, playlistId));
   await db.delete(playlists).where(eq(playlists.id, playlistId));
+}
+
+export async function upsertSpotifyToken(token: InsertSpotifyToken) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.insert(spotifyTokens).values(token).onDuplicateKeyUpdate({
+    set: {
+      accessToken: token.accessToken,
+      refreshToken: token.refreshToken,
+      expiresAt: token.expiresAt,
+    },
+  });
+}
+
+export async function getSpotifyToken(userId: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(spotifyTokens).where(eq(spotifyTokens.userId, userId)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function deleteSpotifyToken(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.delete(spotifyTokens).where(eq(spotifyTokens.userId, userId));
 }

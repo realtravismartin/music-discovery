@@ -2,11 +2,11 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getLoginUrl } from "@/const";
-import { Music, Loader2, Play, ExternalLink, Trash2 } from "lucide-react";
+import { Music, Loader2, Play, ExternalLink, Trash2, Upload } from "lucide-react";
 import { Link, useLocation, useParams } from "wouter";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function ViewPlaylist() {
   const { isAuthenticated, loading: authLoading } = useAuth();
@@ -25,6 +25,14 @@ export default function ViewPlaylist() {
     { enabled: isAuthenticated && playlistId > 0 }
   );
 
+  const { data: spotifyStatus, refetch: refetchSpotifyStatus } = trpc.music.getSpotifyConnectionStatus.useQuery(undefined, {
+    enabled: isAuthenticated,
+  });
+
+  const { data: spotifyAuthUrl } = trpc.music.getSpotifyAuthUrl.useQuery(undefined, {
+    enabled: isAuthenticated && !spotifyStatus?.connected,
+  });
+
   const deleteMutation = trpc.music.deletePlaylist.useMutation({
     onSuccess: () => {
       toast.success("Playlist deleted successfully");
@@ -34,6 +42,27 @@ export default function ViewPlaylist() {
       toast.error(`Failed to delete playlist: ${error.message}`);
     },
   });
+
+  const exportMutation = trpc.music.exportToSpotify.useMutation({
+    onSuccess: (data) => {
+      toast.success(`Playlist exported! ${data.tracksExported} tracks added to Spotify`);
+      if (data.playlistUrl) {
+        window.open(data.playlistUrl, '_blank');
+      }
+    },
+    onError: (error) => {
+      toast.error(`Export failed: ${error.message}`);
+    },
+  });
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('spotify_connected') === 'true') {
+      toast.success('Successfully connected to Spotify!');
+      refetchSpotifyStatus();
+      window.history.replaceState({}, '', window.location.pathname);
+    }
+  }, [refetchSpotifyStatus]);
 
   const handleDelete = () => {
     if (confirm("Are you sure you want to delete this playlist?")) {
@@ -111,18 +140,46 @@ export default function ViewPlaylist() {
               <h1 className="text-2xl font-bold text-white">Music Discovery</h1>
             </div>
           </Link>
-          <Button
-            onClick={handleDelete}
-            variant="destructive"
-            disabled={deleteMutation.isPending}
-          >
-            {deleteMutation.isPending ? (
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            ) : (
-              <Trash2 className="mr-2 h-4 w-4" />
+          <div className="flex gap-2">
+            {currentPlaylist?.service === 'spotify' && (
+              spotifyStatus?.connected ? (
+                <Button
+                  onClick={() => exportMutation.mutate({ playlistId })}
+                  disabled={exportMutation.isPending}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  {exportMutation.isPending ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  ) : (
+                    <Upload className="mr-2 h-4 w-4" />
+                  )}
+                  Export to Spotify
+                </Button>
+              ) : (
+                <Button
+                  asChild
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <a href={spotifyAuthUrl?.url}>
+                    <Upload className="mr-2 h-4 w-4" />
+                    Connect Spotify to Export
+                  </a>
+                </Button>
+              )
             )}
-            Delete Playlist
-          </Button>
+            <Button
+              onClick={handleDelete}
+              variant="destructive"
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Trash2 className="mr-2 h-4 w-4" />
+              )}
+              Delete Playlist
+            </Button>
+          </div>
         </div>
       </nav>
 

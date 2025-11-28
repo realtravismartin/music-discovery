@@ -15,6 +15,13 @@
       "when": 1764287164787,
       "tag": "0001_curvy_meteorite",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1764349283772,
+      "tag": "0002_tricky_gladiator",
+      "breakpoints": true
     }
   ]
 }
