@@ -127,7 +127,7 @@ export default function ViewPlaylist() {
 
   if (authLoading || playlistLoading || songsLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-950 via-fuchsia-950 to-indigo-950">
         <Loader2 className="h-12 w-12 animate-spin text-purple-400" />
       </div>
     );
@@ -135,7 +135,7 @@ export default function ViewPlaylist() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-950 via-fuchsia-950 to-indigo-950">
         <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white max-w-md">
           <CardHeader>
             <CardTitle>Sign In Required</CardTitle>
@@ -157,7 +157,7 @@ export default function ViewPlaylist() {
 
   if (!currentPlaylist || !songs) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-950 via-fuchsia-950 to-indigo-950">
         <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white max-w-md">
           <CardHeader>
             <CardTitle>Playlist Not Found</CardTitle>
@@ -178,7 +178,7 @@ export default function ViewPlaylist() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
+    <div className="min-h-screen bg-gradient-to-br from-purple-950 via-fuchsia-950 to-indigo-950">
       <nav className="border-b border-white/10 backdrop-blur-sm bg-black/20">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Link href="/">

@@ -131,7 +131,7 @@ export default function CreatePlaylist() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-950 via-fuchsia-950 to-indigo-950">
         <div className="text-white text-xl">Loading...</div>
       </div>
     );
@@ -139,7 +139,7 @@ export default function CreatePlaylist() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-950 via-fuchsia-950 to-indigo-950">
         <Card className="bg-white/10 backdrop-blur-sm border-white/20 text-white max-w-md">
           <CardHeader>
             <CardTitle>Sign In Required</CardTitle>
@@ -161,7 +161,7 @@ export default function CreatePlaylist() {
   const searchResults = service === "spotify" ? spotifyResults : itunesResults;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-900 via-indigo-900 to-blue-900">
+    <div className="min-h-screen bg-gradient-to-br from-purple-950 via-fuchsia-950 to-indigo-950">
       <nav className="border-b border-white/10 backdrop-blur-sm bg-black/20">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <Link href="/">

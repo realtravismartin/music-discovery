@@ -1,6 +1,6 @@
-import { eq } from "drizzle-orm";
+import { eq, and, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users, playlists, songs, InsertPlaylist, InsertSong, spotifyTokens, InsertSpotifyToken } from "../drizzle/schema";
+import { InsertUser, users, playlistLikes, playlists, songs, InsertPlaylist, InsertSong, spotifyTokens, InsertSpotifyToken } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -405,4 +405,82 @@ export async function clonePlaylist(
   }
   
   return newPlaylistId;
+}
+
+export async function likePlaylist(playlistId: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Check if already liked
+  const existing = await db
+    .select()
+    .from(playlistLikes)
+    .where(
+      and(
+        eq(playlistLikes.playlistId, playlistId),
+        eq(playlistLikes.userId, userId)
+      )
+    )
+    .limit(1);
+  
+  if (existing.length > 0) {
+    return { alreadyLiked: true };
+  }
+  
+  // Add like
+  await db.insert(playlistLikes).values({
+    playlistId,
+    userId,
+  });
+  
+  // Increment like counter
+  await db
+    .update(playlists)
+    .set({ likes: sql`${playlists.likes} + 1` })
+    .where(eq(playlists.id, playlistId));
+  
+  return { success: true };
+}
+
+export async function unlikePlaylist(playlistId: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Remove like
+  const result = await db
+    .delete(playlistLikes)
+    .where(
+      and(
+        eq(playlistLikes.playlistId, playlistId),
+        eq(playlistLikes.userId, userId)
+      )
+    );
+  
+  // Decrement like counter if a like was removed
+  if (result[0].affectedRows > 0) {
+    await db
+      .update(playlists)
+      .set({ likes: sql`${playlists.likes} - 1` })
+      .where(eq(playlists.id, playlistId));
+  }
+  
+  return { success: true };
+}
+
+export async function hasUserLikedPlaylist(playlistId: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db
+    .select()
+    .from(playlistLikes)
+    .where(
+      and(
+        eq(playlistLikes.playlistId, playlistId),
+        eq(playlistLikes.userId, userId)
+      )
+    )
+    .limit(1);
+  
+  return result.length > 0;
 }

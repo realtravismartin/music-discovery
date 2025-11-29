@@ -79,3 +79,22 @@
 - [x] Display playlist stats (views, likes) on cards
 - [x] Add navigation link to Discovery page
 - [x] Write vitest tests for discovery and clone functionality
+
+## Like Feature
+- [ ] Create playlistLikes table to track user likes
+- [ ] Add backend procedure to like a playlist
+- [ ] Add backend procedure to unlike a playlist
+- [ ] Add backend procedure to check if user has liked a playlist
+- [ ] Update like counter when users like/unlike
+- [ ] Add like button to Discovery page playlist cards
+- [ ] Add like button to ShareView page
+- [ ] Show liked state (filled heart) when user has liked
+- [ ] Update like count in real-time after like/unlike
+- [ ] Write vitest tests for like functionality
+
+## Color Scheme Redesign
+- [x] Update CSS variables in index.css with music-oriented colors
+- [x] Use bold gradients with electric blues and vibrant purples
+- [x] Add energetic accent colors for buttons and highlights
+- [x] Update all page backgrounds with new gradient scheme
+- [x] Ensure text contrast and readability with new colors

@@ -50,6 +50,13 @@
       "when": 1764351322793,
       "tag": "0006_slow_exodus",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "5",
+      "when": 1764376253216,
+      "tag": "0007_wandering_luminals",
+      "breakpoints": true
     }
   ]
 }

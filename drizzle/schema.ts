@@ -62,6 +62,16 @@ export type InsertPlaylist = typeof playlists.$inferInsert;
 export type Song = typeof songs.$inferSelect;
 export type InsertSong = typeof songs.$inferInsert;
 
+export const playlistLikes = mysqlTable("playlistLikes", {
+  id: int("id").autoincrement().primaryKey(),
+  playlistId: int("playlistId").notNull(),
+  userId: int("userId").notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+});
+
+export type PlaylistLike = typeof playlistLikes.$inferSelect;
+export type InsertPlaylistLike = typeof playlistLikes.$inferInsert;
+
 export const spotifyTokens = mysqlTable("spotifyTokens", {
   id: int("id").autoincrement().primaryKey(),
   userId: int("userId").notNull().unique(),

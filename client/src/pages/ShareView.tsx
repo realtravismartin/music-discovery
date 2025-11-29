@@ -46,7 +46,7 @@ export default function ShareView() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900 flex items-center justify-center">
+      <div className="min-h-screen bg-gradient-to-br from-purple-950 via-fuchsia-950 to-indigo-950 flex items-center justify-center">
         <Loader2 className="h-12 w-12 animate-spin text-white" />
       </div>
     );
@@ -54,7 +54,7 @@ export default function ShareView() {
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-purple-900 via-purple-800 to-indigo-900">
+      <div className="min-h-screen bg-gradient-to-br from-purple-950 via-fuchsia-950 to-indigo-950">
         <nav className="border-b border-white/10 bg-black/20 backdrop-blur-sm">
           <div className="container mx-auto px-4 py-4">
             <Link href="/">
